@@ -1,45 +1,75 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
+import ListItemText from '@material-ui/core/ListItemText';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import Avatar from '@material-ui/core/Avatar';
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Switch,
+} from 'react-router-dom';
 
-import Version from '../components/Version';
+import Header from '../components/Header';
+import ThemeContext from '../context/ThemeContext';
+import DrawerContainer from '../components/DrawerContainer';
+import System from './System';
+import VidispineIcon from '../icons/Vidispine';
 
-function App({ unsetToken }) {
+
+const listComponent = ({ location: { pathname } = {} }) => (
+  <React.Fragment>
+    <List>
+      <ListItem>
+        <ListItemIcon>
+          <VidispineIcon style={{ height: 20, width: 20, marginLeft: 4 }} />
+        </ListItemIcon>
+        <ListItemText secondary="Vidispine" />
+      </ListItem>
+      <ListItem button component={Link} to="/system/" selected={pathname === '/system/' || pathname === '/'}>
+        <ListItemIcon><Avatar style={{ height: 25, width: 25 }}>S</Avatar></ListItemIcon>
+        <ListItemText primary="System" />
+      </ListItem>
+    </List>
+  </React.Fragment>
+);
+
+const mainComponent = drawerProps => (
+  <Switch>
+    <Route path="/" exact render={props => <System {...drawerProps} {...props} />} />
+    <Route path="/system/" exact render={props => <System {...drawerProps} {...props} />} />
+  </Switch>
+);
+
+function App(props) {
+  const { theme } = React.useContext(ThemeContext);
+  const { unsetToken } = props;
   return (
-    <Grid
-      container
-      justify="center"
-      alignItems="center"
-      style={{ height: '100vh' }}
-    >
-      <Grid item xs="auto">
-        <Card>
-          <CardHeader
-            title="Welcome!"
-            action={(
-              <Button
-                onClick={unsetToken}
-                variant="outlined"
-                color="secondary"
-              >
-                Logout
-              </Button>
+    <>
+      <Header unsetToken={unsetToken} />
+      <div
+        style={{
+          paddingTop: theme.mixins.toolbar.minHeight - (theme.spacing.unit * 3),
+          height: '100vh',
+        }}
+      >
+        <Router>
+          <Route
+            path="/"
+            render={renderProps => (
+              <DrawerContainer
+                {...renderProps}
+                {...props}
+                theme={theme}
+                mainComponent={mainComponent}
+                listComponent={listComponent}
+              />
             )}
           />
-          <CardContent>
-            <Version />
-            <p>
-              Edit
-              <code> src/containers/App.js </code>
-              and save to reload.
-            </p>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+        </Router>
+      </div>
+    </>
   );
 }
 
